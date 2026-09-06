@@ -20,11 +20,17 @@ Run from inside build/:
 """
 
 import json
+import os
 
 SALES_JSON_PATH = "../data/sales.json"
 CHARTJS_PATH = "chart.umd.js"
 XLSXLIB_PATH = "xlsx.core.min.js"
 OUTPUT_PATH = "../dashboard/Sales Dashboard.html"
+# Also written to docs/index.html so GitHub Pages (serving main branch,
+# /docs folder) can host this at https://<user>.github.io/<repo>/ — see
+# documentation/Documentation.md's note on GitHub Pages for the important
+# caveat about that URL being effectively public on a GitHub Free plan.
+DOCS_OUTPUT_PATH = "../docs/index.html"
 
 TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
@@ -1770,7 +1776,12 @@ def main():
     with open(OUTPUT_PATH, "w") as f:
         f.write(html)
 
-    print(f"Wrote {OUTPUT_PATH} ({len(html):,} bytes) from {len(sales):,} rows")
+    os.makedirs(os.path.dirname(DOCS_OUTPUT_PATH), exist_ok=True)
+    with open(DOCS_OUTPUT_PATH, "w") as f:
+        f.write(html)
+
+    print(f"Wrote {OUTPUT_PATH} and {DOCS_OUTPUT_PATH} "
+          f"({len(html):,} bytes) from {len(sales):,} rows")
 
 
 if __name__ == "__main__":
