@@ -20,15 +20,21 @@ browser, and how to move it onto a database later.
 │   ├── chart.umd.js              bundled charting library (Chart.js v4)
 │   └── xlsx.core.min.js          bundled spreadsheet library (SheetJS), used
 │                                  by the dashboard's "Export data" button
-└── dashboard/
-    └── Sales Dashboard.html      the finished, self-contained dashboard
+├── dashboard/
+│   └── Sales Dashboard.html      the finished, self-contained dashboard
+└── docs/
+    └── index.html                 identical copy, for GitHub Pages (§10)
 ```
 
 The dashboard HTML file is **fully self-contained** — the two library files
 in `build/` are copied *into* it at build time, so the file in `dashboard/`
 has no external dependencies and no internet connection is required to open
 it. `chart.umd.js` and `xlsx.core.min.js` only need to exist in `build/` at
-*build* time, not when you open the dashboard.
+*build* time, not when you open the dashboard. `build_dashboard.py` writes
+the exact same content to both `dashboard/Sales Dashboard.html` (the nicely-
+named local copy) and `docs/index.html` (which GitHub Pages requires be
+named `index.html` — see §10) — there's no meaningful difference between
+the two files, just where they live and what serves them.
 
 This mirrors the structure used by the Cashflows dashboard elsewhere in this
 project — same three-stage pipeline (source data → JSON → self-contained
@@ -516,3 +522,35 @@ To move off Excel and onto a database:
   real DOM elements. With a few thousand rows this is still fast in modern
   browsers; a much larger dataset (tens of thousands of rows) may notice a
   delay when toggling it on.
+
+## 10. Hosting on GitHub Pages
+
+The dashboard is published at **https://chiggz14.github.io/sales-dashboard-app/**,
+served by GitHub Pages from the `sales-dashboard-app` repo's `main` branch,
+`/docs` folder (`docs/index.html` — see §1).
+
+**This repo, and therefore this URL, is public.** That was a deliberate,
+explicit choice, made after two rounds of confirmation — not a default:
+
+- On a **GitHub Free** plan (which this account is on), GitHub Pages simply
+  doesn't work on a private repository at all — not "works but public,"
+  genuinely unavailable. Getting *any* Pages site required either making
+  the repo public, or upgrading to GitHub Pro/Team/Enterprise (which
+  supports a real access-restricted Pages visibility on a private repo).
+- The repo was made public specifically to get this link working. That
+  means the source code, full commit history, and the dashboard itself —
+  **with the real sales data baked into `docs/index.html` and
+  `dashboard/Sales Dashboard.html`, per §2's data-inclusion choice** — are
+  all publicly visible to anyone, not just people who happen to find the
+  Pages URL.
+- **If this ever needs to be undone**: `gh repo edit chiggz14/sales-dashboard-app
+  --visibility private` (this alone will also break the Pages site, per the
+  limitation above, unless paired with a Pro/Team/Enterprise upgrade first).
+
+**Keeping the published site up to date**: since `build_dashboard.py`
+writes to `docs/index.html` automatically (§1, §3), a normal rebuild +
+commit + push (§3, and the `sales-dashboard-git-workflow` house rule this
+project follows — commit/push after changes rather than leaving them
+local) is all that's needed — GitHub rebuilds the Pages site from
+`docs/index.html` on every push to `main` automatically, typically live
+within a minute or two.
